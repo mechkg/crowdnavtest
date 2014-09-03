@@ -8,9 +8,14 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Set;
 
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+
 public class NavGrid {
 	public final int horizontalCells;
 	public final int verticalCells;
+
+	private final double worldWidth;
+	private final double worldHeight;
 
 	public NavCell[] cells;
 
@@ -20,6 +25,8 @@ public class NavGrid {
 	public NavGrid(int horizontalCells, int verticalCells, double worldWidth, double worldHeight, NavCell[] cells) {
 		this.horizontalCells = horizontalCells;
 		this.verticalCells = verticalCells;
+		this.worldWidth = worldWidth;
+		this.worldHeight = worldHeight;
 		this.cells = cells;
 
 		calcPaths();
@@ -30,16 +37,16 @@ public class NavGrid {
 		ArrayList<NavCell> result = new ArrayList<>();
 
 		if (cell.x > 0)
-			r.add(getCell(cell.x - 1, cell.y));
+			r.add(getCellByIndex(cell.x - 1, cell.y));
 
 		if (cell.x < (horizontalCells - 1))
-			r.add(getCell(cell.x + 1, cell.y));
+			r.add(getCellByIndex(cell.x + 1, cell.y));
 
 		if (cell.y > 0)
-			r.add(getCell(cell.x, cell.y - 1));
+			r.add(getCellByIndex(cell.x, cell.y - 1));
 
 		if (cell.y < (verticalCells - 1))
-			r.add(getCell(cell.x, cell.y + 1));
+			r.add(getCellByIndex(cell.x, cell.y + 1));
 
 		for (NavCell c : r)
 			if (c.isWalkable)
@@ -106,10 +113,37 @@ public class NavGrid {
 		int target_x = horizontalCells / 2;
 		int target_y = verticalCells / 2;
 
-		return getCell(target_x, target_y);
+		return getCellByIndex(target_x, target_y);
 	}
 
-	public NavCell getCell(int cellX, int cellY) {
+	public NavCell getCellFromWorldCoords(Vector2D coords) {
+		int x = (int) (coords.getX() / worldWidth * horizontalCells);
+
+		if (x > horizontalCells - 1)
+			x = horizontalCells - 1;
+
+		if (x < 0)
+			x = 0;
+
+		int y = (int) (coords.getY() / worldHeight * verticalCells);
+
+		if (y > verticalCells - 1)
+			y = verticalCells - 1;
+		
+		if (y < 0)
+			y = 0;
+		
+		return getCellByIndex(x, y);
+	}
+	
+	public Vector2D getCellCenter(NavCell cell) {
+		double wx = worldWidth / (double)horizontalCells;
+		double wy = worldHeight / (double)verticalCells;
+		
+		return new Vector2D((cell.x + 0.5) * wx, (cell.y + 0.5) * wy); 
+	}
+
+	public NavCell getCellByIndex(int cellX, int cellY) {
 		return cells[cellY * horizontalCells + cellX];
 	}
 
