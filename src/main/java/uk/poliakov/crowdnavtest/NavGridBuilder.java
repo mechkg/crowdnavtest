@@ -35,7 +35,7 @@ public class NavGridBuilder {
 				
 				boolean walkable =  (wcount / (double)(ppc_h * ppc_v)) > 0.8;
 						
-				cellInfo[cnt++] = new NavCell(walkable, ppc_v * ppc_h, wcount);
+				cellInfo[cnt++] = new NavCell(x, y, 1, walkable, ppc_v * ppc_h, wcount);
 			}
 		
 		return new NavGrid(horizontalCells, verticalCells, worldWidth, worldHeight, cellInfo);
